@@ -32,6 +32,20 @@ Open `index.html` in a browser. That is the whole procedure — no install, no b
 no server, no network requests at runtime. Cloning is optional; downloading the one file
 is enough.
 
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `A`–`D` | Select an answer (in reading order) |
+| `1`–`4` | Select an answer (by position) |
+| `Enter` | Advance to the next question |
+
+## Browser support
+
+The page leans on `color-mix()` in CSS, so it needs a reasonably modern browser — a
+current Chrome, Firefox, Safari, or Edge is fine; anything from more than a couple of
+years ago may not render the gradients and borders correctly.
+
 ## How it is built
 
 One file, roughly 900 lines: inline `<style>`, a markup shell, and inline vanilla JS.
