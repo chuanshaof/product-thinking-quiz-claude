@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Product Thinking Quiz</title>
+<style>
+  :root {
+    --accent: #2f5fd0;
+    --accent-soft: #eaf0fd;
+    --ink: #16191f;
+    --muted: #5b6472;
+    --line: #e2e6ec;
+    --good: #1c7a4a;
+    --good-soft: #e7f5ee;
+    --bad: #b3261e;
+    --bad-soft: #fdeceb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 64px;
+    background: #f6f7f9;
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 32px;
+  }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 12px; }
+  h2 { font-size: 20px; line-height: 1.35; margin: 0 0 24px; font-weight: 600; }
+  h2:focus-visible, h1:focus-visible { outline: none; }
+  p { margin: 0 0 16px; }
+  .lede { color: var(--muted); }
+  .progress {
+    font-size: 13px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin: 0 0 16px;
+  }
+  .options { display: grid; gap: 10px; margin: 0 0 24px; }
+  .option {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .option:disabled { cursor: default; }
+  .option:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .option .mark { flex: 0 0 auto; font-weight: 700; color: var(--muted); min-width: 1.2em; }
+  .option.correct { border-color: var(--good); background: var(--good-soft); }
+  .option.correct .mark { color: var(--good); }
+  .option.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .option.wrong .mark { color: var(--bad); }
+  .verdict { font-weight: 600; margin: 0 0 8px; }
+  .verdict.correct { color: var(--good); }
+  .verdict.wrong { color: var(--bad); }
+  .explanation {
+    border-left: 3px solid var(--accent);
+    background: #fafbfd;
+    padding: 16px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 24px;
+  }
+  .explanation p:last-child { margin-bottom: 0; }
+  .source { font-size: 13px; color: var(--muted); }
+  button.primary {
+    font: inherit;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 22px;
+    cursor: pointer;
+  }
+  button.primary:hover { background: #2750b0; }
+  button.primary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .score { font-size: 40px; font-weight: 700; margin: 0 0 4px; }
+  .review { list-style: none; padding: 0; margin: 0 0 28px; }
+  .review li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .review .mark { font-weight: 700; }
+  .review .mark.correct { color: var(--good); }
+  .review .mark.wrong { color: var(--bad); }
+  footer {
+    max-width: 640px;
+    margin: 20px auto 0;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+  }
+  footer a { color: var(--muted); }
+  @media (max-width: 420px) {
+    body { padding: 16px 12px 48px; }
+    main { padding: 22px 18px; border-radius: 10px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<footer>
+  Questions drawn from the
+  <a href="https://www.idg.gov.sg/product-thinking/">IDG Product Thinking</a> learning pathway.
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var QUESTIONS = [
+    {
+      section: "product",
+      question: "Most digital projects that fail do so for which reason?",
+      options: [
+        "They solve the wrong problem",
+        "The engineering team shipped too slowly",
+        "The technology stack was outdated",
+        "The budget was too small"
+      ],
+      answer: 0,
+      explanation: [
+        "Many projects fail not because of poor execution, but because they solve the wrong problem. Teams reach for a CRM, or an AI feature, before diagnosing what is actually blocking the outcome.",
+        "Diagnosis comes before prescription: problems before solutions."
+      ],
+      source: "Module 1 — Understanding the Problem"
+    },
+    {
+      section: "product",
+      question: "Which of these is an outcome rather than an output?",
+      options: [
+        "The new licensing portal was launched in Q3",
+        "Median time to renew a licence fell from 3 days to 10 minutes",
+        "Twelve features were shipped this quarter",
+        "The portal recorded 5,000 logins last month"
+      ],
+      answer: 1,
+      explanation: [
+        "Outputs are things you produced: launches, features, logins. An outcome is the change in the world for the user — here, a renewal that used to take three days now takes ten minutes.",
+        "Outcomes over outputs is one of the three core shifts of product thinking, alongside problems over solutions and staged delivery over big bang."
+      ],
+      source: "Modules 1 & 7 — Understanding the Problem / Key Takeaways"
+    },
+    {
+      section: "product",
+      question: "You run the Five Whys and surface several plausible root causes. Which one do you actually fix?",
+      options: [
+        "The deepest one you reached, since it is the true root",
+        "The one that is cheapest to fix, regardless of impact",
+        "The one within your team's control AND directly linked to the outcome you want",
+        "All of them, in parallel"
+      ],
+      answer: 2,
+      explanation: [
+        "The Five Whys moves you from symptom to cause — but problems rarely have one root cause. The useful cause satisfies two conditions at once: it sits inside your team's control and influence, and it connects directly to the outcome you are chasing.",
+        "Chasing a cause outside your remit, or one only loosely tied to the goal, burns effort without moving the outcome."
+      ],
+      source: "Module 2 — Start with the Whys"
+    },
+    {
+      section: "product",
+      question: "The 4Cs framework for writing a problem statement stands for:",
+      options: [
+        "Customer, Cost, Capability, Competition",
+        "Clarity, Consequence, Cause, Confirmation",
+        "Context, Constraint, Choice, Commitment",
+        "Clarity, Collaboration, Consensus, Communication"
+      ],
+      answer: 1,
+      explanation: [
+        "Clarity — state the problem plainly. Consequence — spell out the impact. Cause — say why it exists. Confirmation — show the evidence that it is real.",
+        "Worked example: citizens repeatedly fill the same forms across government services. Each C forces you to say what that costs, why it happens, and how you know."
+      ],
+      source: "Module 3 — Craft a Clear Problem Statement"
+    },
+    {
+      section: "product",
+      question: "Weekly active users of a new form is a ______ indicator; a 30% drop in case processing time is a ______ indicator.",
+      options: [
+        "leading; lagging",
+        "lagging; leading",
+        "vanity; SMART",
+        "qualitative; quantitative"
+      ],
+      answer: 0,
+      explanation: [
+        "Leading indicators give you fast feedback early in the chain: usage, adoption, drop-off. Lagging indicators capture the result you actually care about, and arrive later.",
+        "Knowing where a metric sits in that chain tells you whether you are looking at an early signal or a final verdict. Either way, make it SMART: Specific, Measurable, Achievable, Relevant, Time-bound."
+      ],
+      source: "Module 4 — Metrics"
+    },
+    {
+      section: "product",
+      question: "What does the Value-Cost Ratio (VCR) tell you?",
+      options: [
+        "How much of the budget has been spent to date",
+        "How much value is generated for every dollar spent",
+        "How many features shipped per sprint",
+        "The ratio of users to support tickets"
+      ],
+      answer: 1,
+      explanation: [
+        "VCR quantifies efficiency: how much value is generated for every dollar spent. It is what you use to make the case for continuing to invest in something.",
+        "In practice: work out your current VCR, then ask which specific change would improve it."
+      ],
+      source: "Module 4 — Metrics"
+    },
+    {
+      section: "product",
+      question: "You need to test market risk — will anyone actually want this? What is the cheapest way to find out?",
+      options: [
+        "Build a production-ready v1 and measure adoption after launch",
+        "Run a stakeholder survey and a competitor analysis",
+        "Put a rough, manual, unscalable prototype in front of real users now",
+        "Wait for the technical proof of concept to be signed off"
+      ],
+      answer: 2,
+      explanation: [
+        "Market risk (do they want it?), technical risk (does it work?) and team risk (can we execute?) each get de-risked differently — and market risk is answered by real users, not by opinion.",
+        "The health appointment example ran an A/B test off a deliberately manual setup: 24 bookings versus zero. Not scalable, but the lowest-cost way to validate the approach.",
+        "That is what staged delivery buys you: proof of concept, then proof of value, then scale, then maturity."
+      ],
+      source: "Module 5 — Assumptions and Risks"
+    },
+    {
+      section: "product",
+      question: "What is the 11-star framework for?",
+      options: [
+        "Scoring services against a government quality standard",
+        "Rating user satisfaction on an expanded survey scale",
+        "Ranking a backlog by effort against impact",
+        "Describing an absurdly good experience in order to recalibrate ambition"
+      ],
+      answer: 3,
+      explanation: [
+        "It is a tool for recalibrating ambition. You deliberately describe an absurdly good customer experience — well past what is reasonable — to break out of constraints you have quietly accepted.",
+        "Somewhere between adequate and impossible lies an experience that is genuinely worth building. This matters most for compulsory services, where citizens cannot go elsewhere — the win is removing a real, named frustration, as ParkingSG and RedeemSG did."
+      ],
+      source: "Module 6 — A Good Customer Experience"
+    },
+
+    // -------------------------------------------------------------------
+    // TODO: BONUS ROUND — replace the two placeholder questions below.
+    // Edit `question`, the four `options`, `answer` (0-based index of the
+    // correct option) and the `explanation` lines.
+    // -------------------------------------------------------------------
+    {
+      section: "fun",
+      question: "[PLACEHOLDER QUESTION 1 — replace me]",
+      options: [
+        "[Option A]",
+        "[Option B]",
+        "[Option C]",
+        "[Option D]"
+      ],
+      answer: 0, // TODO: index of the correct option
+      explanation: [
+        "[Explanation for bonus question 1 — replace me.]"
+      ],
+      source: "Bonus round"
+    },
+    {
+      section: "fun",
+      question: "[PLACEHOLDER QUESTION 2 — replace me]",
+      options: [
+        "[Option A]",
+        "[Option B]",
+        "[Option C]",
+        "[Option D]"
+      ],
+      answer: 0, // TODO: index of the correct option
+      explanation: [
+        "[Explanation for bonus question 2 — replace me.]"
+      ],
+      source: "Bonus round"
+    }
+  ];
+
+  var LETTERS = ["A", "B", "C", "D", "E", "F"];
+  var FIRST_FUN = QUESTIONS.findIndex(function (q) { return q.section === "fun"; });
+
+  var app = document.getElementById("app");
+  var state = { screen: "intro", index: 0, answers: [], focusTarget: null };
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) { node.className = className; }
+    if (text !== undefined) { node.textContent = text; }
+    return node;
+  }
+
+  function score() {
+    return state.answers.reduce(function (total, choice, i) {
+      return total + (choice === QUESTIONS[i].answer ? 1 : 0);
+    }, 0);
+  }
+
+  function renderIntro() {
+    app.appendChild(el("h1", null, "Product Thinking Quiz"));
+    app.appendChild(el("p", "lede",
+      "Ten questions: eight on the IDG Product Thinking pathway — problem statements, root causes, metrics, risk and customer experience — then a two-question bonus round about me. " +
+      "You get the explanation straight after each answer."));
+    var start = el("button", "primary", "Start the quiz");
+    start.type = "button";
+    start.addEventListener("click", function () {
+      state.screen = "question";
+      state.focusTarget = "heading";
+      render();
+    });
+    app.appendChild(start);
+  }
+
+  function renderBonusDivider() {
+    app.appendChild(el("p", "tag", "Bonus round"));
+    var heading = el("h1", null, "Two questions about me");
+    heading.id = "question-heading";
+    heading.tabIndex = -1;
+    app.appendChild(heading);
+    app.appendChild(el("p", "lede",
+      "Theory is done — " + score() + " of " + FIRST_FUN + " so far. Now the part that is not in any guide."));
+    var next = el("button", "primary", "Bring it on");
+    next.type = "button";
+    next.addEventListener("click", function () {
+      state.screen = "question";
+      state.focusTarget = "heading";
+      render();
+    });
+    app.appendChild(next);
+  }
+
+  function renderQuestion() {
+    var i = state.index;
+    var q = QUESTIONS[i];
+    var chosen = state.answers[i];
+    var locked = chosen !== undefined;
+
+    app.appendChild(el("p", "progress", "Question " + (i + 1) + " of " + QUESTIONS.length));
+
+    if (q.section === "fun") {
+      app.appendChild(el("p", "tag", "Bonus — about me"));
+    }
+
+    var heading = el("h2", null, q.question);
+    heading.id = "question-heading";
+    heading.tabIndex = -1;
+    app.appendChild(heading);
+
+    var list = el("div", "options");
+    q.options.forEach(function (text, idx) {
+      var btn = el("button", "option");
+      btn.type = "button";
+      var mark = el("span", "mark", LETTERS[idx]);
+      btn.appendChild(mark);
+      btn.appendChild(el("span", null, text));
+
+      if (locked) {
+        btn.disabled = true;
+        if (idx === q.answer) {
+          btn.classList.add("correct");
+          mark.textContent = "✓";
+        } else if (idx === chosen) {
+          btn.classList.add("wrong");
+          mark.textContent = "✗";
+        }
+      } else {
+        btn.addEventListener("click", function () {
+          state.answers[i] = idx;
+          state.focusTarget = "explanation";
+          render();
+        });
+      }
+      list.appendChild(btn);
+    });
+    app.appendChild(list);
+
+    if (!locked) { return; }
+
+    var right = chosen === q.answer;
+    var box = el("div", "explanation");
+    box.id = "explanation";
+    box.tabIndex = -1;
+    box.appendChild(el("p", "verdict " + (right ? "correct" : "wrong"),
+      right ? "✓ Correct" : "✗ Not quite — the answer is " + LETTERS[q.answer] + "."));
+    q.explanation.forEach(function (para) { box.appendChild(el("p", null, para)); });
+    if (q.source) { box.appendChild(el("p", "source", q.source)); }
+    app.appendChild(box);
+
+    var last = i === QUESTIONS.length - 1;
+    var next = el("button", "primary", last ? "See your results" : "Next question");
+    next.type = "button";
+    next.addEventListener("click", function () {
+      if (last) {
+        state.screen = "results";
+      } else {
+        state.index = i + 1;
+        state.screen = (state.index === FIRST_FUN) ? "bonus" : "question";
+      }
+      state.focusTarget = "heading";
+      render();
+    });
+    app.appendChild(next);
+  }
+
+  function renderResults() {
+    var total = QUESTIONS.length;
+    var hits = score();
+
+    var heading = el("h1", null, "You scored");
+    heading.id = "question-heading";
+    heading.tabIndex = -1;
+    app.appendChild(heading);
+    app.appendChild(el("p", "score", hits + " / " + total));
+
+    var remark;
+    if (hits === total) {
+      remark = "Perfect. Problems before solutions, outcomes over outputs — you have it.";
+    } else if (hits >= total - 3) {
+      remark = "Solid. Worth a second pass through the module behind anything you missed.";
+    } else {
+      remark = "Plenty to revisit — each explanation names the module it came from.";
+    }
+    app.appendChild(el("p", "lede", remark));
+
+    var review = el("ul", "review");
+    QUESTIONS.forEach(function (q, i) {
+      var right = state.answers[i] === q.answer;
+      var row = el("li");
+      row.appendChild(el("span", "mark " + (right ? "correct" : "wrong"), right ? "✓" : "✗"));
+      var body = el("div");
+      body.appendChild(el("div", null, (i + 1) + ". " + q.question));
+      if (!right) {
+        body.appendChild(el("div", "source", "Answer: " + q.options[q.answer]));
+      }
+      row.appendChild(body);
+      review.appendChild(row);
+    });
+    app.appendChild(review);
+
+    var again = el("button", "primary", "Try again");
+    again.type = "button";
+    again.addEventListener("click", function () {
+      state = { screen: "question", index: 0, answers: [], focusTarget: "heading" };
+      render();
+    });
+    app.appendChild(again);
+  }
+
+  function render() {
+    app.textContent = "";
+    if (state.screen === "intro") { renderIntro(); }
+    else if (state.screen === "bonus") { renderBonusDivider(); }
+    else if (state.screen === "results") { renderResults(); }
+    else { renderQuestion(); }
+
+    var focusId = state.focusTarget === "explanation" ? "explanation" : "question-heading";
+    if (state.focusTarget) {
+      var target = document.getElementById(focusId);
+      if (target) { target.focus(); }
+    }
+    state.focusTarget = null;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
