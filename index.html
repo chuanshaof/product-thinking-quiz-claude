@@ -584,46 +584,41 @@
       source: "Module 6 — A Good Customer Experience"
     },
 
-    // -------------------------------------------------------------------
-    // TODO: BONUS ROUND — replace the two placeholder questions below.
-    // Edit `question`, the four `options`, `answer` (0-based index of the
-    // correct option) and the `explanation` lines.
-    // -------------------------------------------------------------------
     {
-      section: "fun",
-      question: "[PLACEHOLDER QUESTION 1 — replace me]",
+      section: "product",
+      question: "Grab started with taxis. Amazon started with books. Netflix started with DVDs by post. What is the lesson?",
       options: [
-        "[Option A]",
-        "[Option B]",
-        "[Option C]",
-        "[Option D]"
+        "Start in a low-tech market where the competition is weak",
+        "Nail one specific problem first, then scale from there",
+        "Pick a business model that generates cash from day one",
+        "Launch the full vision early so investors can see the ambition"
       ],
-      answer: 0, // TODO: index of the correct option
+      answer: 1,
       explanation: [
-        "[Explanation for bonus question 1 — replace me.]"
+        "None of them chased their complete vision at the start. Each solved one narrow problem exceptionally well, then expanded from that foothold.",
+        "The temptation in government is the reverse: a platform that serves every agency, every use case, on day one. Staged delivery beats big bang for the same reason — you learn something real before you commit."
       ],
-      source: "Bonus round"
+      source: "Module 1 — Understanding the Problem"
     },
     {
-      section: "fun",
-      question: "[PLACEHOLDER QUESTION 2 — replace me]",
+      section: "product",
+      question: "Why does customer experience matter MORE, not less, when a government service is compulsory?",
       options: [
-        "[Option A]",
-        "[Option B]",
-        "[Option C]",
-        "[Option D]"
+        "Compulsory services attract more scrutiny from auditors",
+        "Mandatory usage means higher traffic, so performance costs rise",
+        "Citizens cannot go elsewhere, so friction has nowhere to escape to",
+        "It does not — with no competitor, experience is a nice-to-have"
       ],
-      answer: 0, // TODO: index of the correct option
+      answer: 2,
       explanation: [
-        "[Explanation for bonus question 2 — replace me.]"
+        "Good customer experience is not a nice-to-have, and that is especially true when a service is compulsory, because citizens do not have the option to go elsewhere. Bad design becomes something people are forced to endure rather than something they can walk away from.",
+        "What the services people actually like have in common is concrete: they remove a real, named frustration. ParkingSG killed the paper coupon. RedeemSG killed the voucher queue."
       ],
-      source: "Bonus round"
+      source: "Module 6 — A Good Customer Experience"
     }
   ];
 
   var LETTERS = ["A", "B", "C", "D", "E", "F"];
-  var FIRST_FUN = QUESTIONS.findIndex(function (q) { return q.section === "fun"; });
-
   var app = document.getElementById("app");
   var rail = document.getElementById("rail");
   var railFill = document.getElementById("rail-fill");
@@ -651,7 +646,7 @@
   }
 
   function updateChrome() {
-    var onQuiz = state.screen === "question" || state.screen === "bonus";
+    var onQuiz = state.screen === "question";
     rail.classList.toggle("show", onQuiz);
     counter.classList.toggle("show", onQuiz);
     if (onQuiz) {
@@ -671,7 +666,7 @@
     h.tabIndex = -1;
     wrap.appendChild(h);
     wrap.appendChild(el("p", "lede",
-      "Eight questions on the IDG Product Thinking pathway — problem statements, root causes, metrics, risk and customer experience — then a two-question bonus round about me."));
+      "Ten questions on the IDG Product Thinking pathway: problem statements, root causes, metrics, risk and the experience you leave people with."));
     wrap.appendChild(el("p", "lede",
       "Every answer comes with the reasoning behind it, so a wrong guess is still worth something."));
 
@@ -697,23 +692,6 @@
     return hint;
   }
 
-  function renderBonusDivider() {
-    var wrap = el("div", "anim");
-    wrap.appendChild(el("p", "eyebrow", "Bonus round"));
-    var h = el("h1", null, "Two questions about me");
-    h.id = "focus-target";
-    h.tabIndex = -1;
-    wrap.appendChild(h);
-    wrap.appendChild(el("p", "lede",
-      "That is the theory done — " + score() + " of " + FIRST_FUN + " so far. What follows is not in any guide."));
-    var next = el("button", "btn", "Bring it on");
-    next.type = "button";
-    next.appendChild(el("span", "arrow", "→"));
-    next.addEventListener("click", function () { go("question"); });
-    wrap.appendChild(next);
-    app.appendChild(wrap);
-  }
-
   function renderQuestion() {
     var i = state.index;
     var q = QUESTIONS[i];
@@ -721,11 +699,7 @@
     var locked = chosen !== undefined;
 
     var head = el("div", "anim");
-    if (q.section === "fun") {
-      head.appendChild(el("p", "eyebrow", "Bonus · about me"));
-    } else {
-      head.appendChild(el("p", "eyebrow", "Question " + (i + 1)));
-    }
+    head.appendChild(el("p", "eyebrow", "Question " + (i + 1)));
     var h = el("h2", null, q.question);
     h.id = "focus-target";
     h.tabIndex = -1;
@@ -901,13 +875,12 @@
       return;
     }
     state.index = i + 1;
-    go(state.index === FIRST_FUN ? "bonus" : "question");
+    go("question");
   }
 
   function render() {
     app.textContent = "";
     if (state.screen === "intro") { renderIntro(); }
-    else if (state.screen === "bonus") { renderBonusDivider(); }
     else if (state.screen === "results") { renderResults(); }
     else { renderQuestion(); }
 
